@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>111306052_HW6_1A2B</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        #history {
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>111306052_HW6_1A2B</h1>
+    <p>請輸入4位不重複的數字：</p>
+    <input type="text" id="guessInput" maxlength="4" placeholder="例如: 1234">
+    <button onclick="submitGuess()">猜！</button>
+    <div id="history">
+        <h3>歷史紀錄</h3>
+        <ul id="recordList"></ul>
+    </div>
+    
+    <script>
+        // 隨機產生 4 位不重複數字
+        let answer = generateAnswer();
+        let attempts = 0;
+
+        function generateAnswer() {
+            const digits = [...Array(10).keys()]; // [0, 1, 2, ..., 9]
+            const answer = [];
+            while (answer.length < 4) {
+                const randomIndex = Math.floor(Math.random() * digits.length);
+                answer.push(digits[randomIndex]);
+                digits.splice(randomIndex, 1); // 移除已選中的數字
+            }
+            return answer;
+        }
+
+        function submitGuess() {
+            const inputField = document.getElementById("guessInput");
+            const guess = inputField.value;
+
+            // 檢查輸入是否正確
+            if (!isValidGuess(guess)) {
+                alert("請輸入4位不重複的數字！");
+                return;
+            }
+
+            // 增加作答次數
+            attempts++;
+
+            // 計算 1A2B
+            const result = calculate1A2B(guess.split("").map(Number));
+            updateHistory(guess, result);
+
+            // 判斷遊戲結束
+            if (result.a === 4) {
+                alert(`恭喜答對！答案是 ${answer.join("")}，您總共猜了 ${attempts} 次。`);
+                resetGame();
+            }
+
+            // 清空輸入框
+            inputField.value = "";
+        }
+
+        // 檢查輸入是否有效
+        function isValidGuess(guess) {
+            if (guess.length !== 4 || isNaN(guess)) return false;
+            const digits = guess.split("");
+            const uniqueDigits = new Set(digits);
+            return uniqueDigits.size === 4; // 檢查是否有重複數字
+        }
+
+        // 計算 1A2B
+        function calculate1A2B(guess) {
+            let a = 0; // 數字正確且位置正確
+            let b = 0; // 數字正確但位置錯誤
+
+            for (let i = 0; i < 4; i++) {
+                if (guess[i] === answer[i]) {
+                    a++;
+                } else if (answer.includes(guess[i])) {
+                    b++;
+                }
+            }
+
+            return { a, b };
+        }
+
+        // 更新歷史紀錄
+        function updateHistory(guess, result) {
+            const recordList = document.getElementById("recordList");
+            const listItem = document.createElement("li");
+            listItem.textContent = `猜測：${guess} -> ${result.a}A${result.b}B`;
+            recordList.appendChild(listItem);
+        }
+
+        // 重置遊戲
+        function resetGame() {
+            answer = generateAnswer();
+            attempts = 0;
+            document.getElementById("recordList").innerHTML = "";
+            alert("遊戲已重置！可以開始新一輪猜測！");
+        }
+    </script>
+</body>
+</html>
